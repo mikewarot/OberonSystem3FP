@@ -19,44 +19,45 @@ Program Oberon; (** portable, except where noted *) (*JG 22.7.94*)
 scheduling of tasks, cursor handling and command execution.
 *)
 
-  Uses Kernel, Modules, Display, Input, Objects, Viewers, Fonts, Texts, Files;
+  Uses OberonKernel;
+//, Modules, Display, Input, Objects, Viewers, Fonts, Texts, Files;
 
   CONST
 
     (** Message ids: *)
-    defocus* = 0; neutralize* = 1; mark* = 2; (** ControlMsg*)
-    consume* = 0; track* = 1; (** InputMsg*)
-    get* = 0; set* = 1; reset* = 2; (** CaretMsg id, SelectMsg id*)
+    msg_defocus = 0; msg_neutralize = 1; msg_mark = 2; (** ControlMsg*)
+    msg_consume = 0; msg_track = 1; (** InputMsg*)
+    msg__get = 0; msg__set = 1; msg__reset = 2; (** CaretMsg id, SelectMsg id*)
 
     GCInterval = 100000; ActVal = 5000;
 
-    minint = MIN(INTEGER);
+    minint = -2147483648; // bold assumption MAW
 
-    Neutralise = 0A5X; SETUP = 0A4X;
+    Neutralise = $0A5; SETUP = $0A4;
 
-    OberonText = "Oberon.Text";
+    OberonText = 'Oberon.Text';
     
   TYPE
 
-    Painter* = PROCEDURE (x, y: INTEGER);
-    Marker* = RECORD
-        Fade*, Draw*: Painter   (** Remove and draw marker. *)
+    Painter = PROCEDURE (x, y: INTEGER);
+    Marker = RECORD
+        Fade, Draw: Painter   (** Remove and draw marker. *)
     END;
     
-    Cursor* = RECORD
-        marker*: Marker;    (** Cursor marker. *)
-        on*: BOOLEAN;   (** Is cursor shown? *)
-        X*, Y*: INTEGER (** Absolute cursor position. *)
+    Cursor = RECORD
+        marker: Marker;    (** Cursor marker. *)
+        on: BOOLEAN;   (** Is cursor shown? *)
+        X, Y: INTEGER (** Absolute cursor position. *)
     END;
 
-    ParList* = POINTER TO ParRec;
+ ParList = ^ParRec;
 
-    ParRec* = RECORD    (** Area for passing command parameters. *)
-      vwr*: Viewers.Viewer; (** Viewer in which command is executed. *)
-      frame*: Display.Frame;    (** Frame of vwr from where command is executed. *)
-      obj*: Objects.Object; (** Object in vwr executing command. *)
-      text*: Texts.Text;    (** Text parameter to be passed to command. *)
-      pos*: LONGINT (** Starting position in text of parameter. *)
+    ParRec = RECORD    (** Area for passing command parameters. *)
+      vwr: Viewers.Viewer; (** Viewer in which command is executed. *)
+      frame: Display.Frame;    (** Frame of vwr from where command is executed. *)
+      obj: Objects.Object; (** Object in vwr executing command. *)
+      text: Texts.Text;    (** Text parameter to be passed to command. *)
+      pos: LONGINT (** Starting position in text of parameter. *)
     END;
 
     ControlMsg* = RECORD (Display.FrameMsg)
@@ -813,3 +814,5 @@ events that it broadcasts to the display space using messages. When no events ar
 happening, background tasks are activated periodically in a round-robin fashion.
 
 *)
+
+
